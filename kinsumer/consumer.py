@@ -165,7 +165,8 @@ class Consumer(object):
 
     @locked_cached_property
     def kinesis_client(self):
-        return boto3.client('kinesis', region_name=self.config['STREAM_REGION'])
+        return boto3.client('kinesis',
+                            region_name=self.config['STREAM_REGION'])
 
     @typechecked
     def transform(self, func: Callable[[List[Any],
