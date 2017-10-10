@@ -182,10 +182,8 @@ class KinesisShard(Greenlet):
             return True
         return False
 
-    def _get_records(self, limit=None) -> Tuple[
-        Optional[List[KinesisRecord]],
-        Optional[str]
-    ]:
+    def _get_records(self, limit=None) -> Tuple[Optional[List[KinesisRecord]],
+                                                Optional[str]]:
         if limit is not None:
             limit = int(limit)
         else:
@@ -223,8 +221,7 @@ class KinesisStream(object):
             'StreamStatus'
         )
 
-    def get_shards(self,
-                   consumer: 'Consumer') -> List[KinesisShard]:
+    def get_shards(self, consumer: 'Consumer') -> List[KinesisShard]:
         return [
             KinesisShard(consumer, shard) for shard in
             self.__raw_response.get('StreamDescription', {}).get('Shards', [])

@@ -168,29 +168,25 @@ class Consumer(object):
         return boto3.client('kinesis', region_name=self.config['STREAM_REGION'])
 
     @typechecked
-    def transform(self, func: Callable[[
-                                           List[Any],
-                                           str,
-                                           str,
-                                           datetime
-                                       ], List[Any]]) -> Callable:
+    def transform(self, func: Callable[[List[Any],
+                                        str,
+                                        str,
+                                        datetime],
+                                       List[Any]]) -> Callable:
         self.__transform_funcs.append(func)
         return func
 
     @typechecked
-    def after_consume(self, func: Callable[[
-                                               Optional[List[Any]],
-                                               str,
-                                               Optional[str],
-                                               Optional[datetime]
-                                           ], None]) -> Callable:
+    def after_consume(self, func: Callable[[Optional[List[Any]],
+                                            str,
+                                            Optional[str],
+                                            Optional[datetime]],
+                                           None]) -> Callable:
         self.__after_consume_func.append(func)
         return func
 
     @typechecked
-    def teardown_consumer(self, func: Callable[[
-                                                   Any
-                                               ], None]) -> Callable:
+    def teardown_consumer(self, func: Callable[[Any], None]) -> Callable:
         self.__teardown_consumer_func.append(func)
         return func
 
