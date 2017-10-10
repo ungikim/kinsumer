@@ -3,10 +3,10 @@
 
 """
 import os
+import sys
 from logging import (DEBUG, Formatter, INFO,
                      StreamHandler, getLogger, getLoggerClass)
 from logging.handlers import TimedRotatingFileHandler
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -60,7 +60,8 @@ def create_logger(consumer: 'Consumer') -> _Logger:  # noqa: C901
     logger.__class__ = DebugLogger
     logger.addHandler(debug_handler)
     logger.addHandler(prod_handler)
-    if consumer.log_folder is not None:
+    if (consumer.log_folder is not None and
+            not hasattr(sys, '_called_from_test')):
         log_path = os.path.join(consumer.root_path, consumer.log_folder)
         if not os.path.exists(log_path):
             os.makedirs(log_path)

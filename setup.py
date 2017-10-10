@@ -47,6 +47,7 @@ setup(
     extra_require={
         'dev': [
             'pytest==3.2.3',
+            'pytest-mock==1.6.3',
             'tox==2.9.1',
             'flake8==3.4.1',
         ]
