@@ -12,9 +12,7 @@ def get_version():
                 continue
             target, = node.targets
             value = node.value
-            if not (isinstance(target, ast.Name) and
-                            target.id == 'VERSION_INFO' and
-                        isinstance(value, ast.Tuple)):
+            if not (isinstance(target, ast.Name) and target.id == 'VERSION_INFO' and isinstance(value, ast.Tuple)):
                 continue
             elts = value.elts
             if any(not isinstance(elt, ast.Num) for elt in elts):
