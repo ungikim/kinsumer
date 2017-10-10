@@ -28,7 +28,7 @@ def readme():
 
 
 setup(
-    name='linkage',
+    name='kinsumer',
     version=get_version(),
     description='High level Amazon Kinesis Streams consumer',
     long_description=readme(),
