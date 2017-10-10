@@ -1,0 +1,9 @@
+.idea/
+venv/
+__pycache__/
+.cache/
+*.log
+*.db
+*.egg-info
+.tox/
+
