@@ -20,7 +20,6 @@ from gevent.pool import Group
 from werkzeug.datastructures import ImmutableDict
 from typeguard import typechecked
 
-from .bucket import Bucket, InMemoryBucket
 from .config import ConfigAttribute, Config
 from .checkpointer import Checkpointer, InMemoryCheckpointer
 from .ctx import ConsumerContext, has_shard_context
@@ -56,11 +55,6 @@ def _make_timedelta(value: Any) -> timedelta:
 
 
 class Consumer(object):
-    #: The bucket class to use for temporary saving records.
-    #: Defaults to :class:`~linkage.bucket.InMemoryBucket`
-    #:
-    #: See :class:`~linkage.bucket.Bucket` for more information
-    bucket_class: Bucket = InMemoryBucket
     #: The debug flag
     #:
     #: This attribute can also be configured from the config with the ``DEBUG``
@@ -196,13 +190,13 @@ class Consumer(object):
                      data: List[Any],
                      shard_id: str,
                      last_sequence_number: str,
-                     last_approximate_arrival_timestamp: datetime) -> List[Any]:
+                     last_arrival_timestamp: datetime) -> List[Any]:
         for func in reversed(self.__transform_funcs):
             data = func(
                 data,
                 shard_id,
                 last_sequence_number,
-                last_approximate_arrival_timestamp
+                last_arrival_timestamp
             )
         return data
 
@@ -211,15 +205,13 @@ class Consumer(object):
                          data: Optional[List[Any]],
                          shard_id: str,
                          last_sequence_number: Optional[str],
-                         last_approximate_arrival_timestamp: Optional[
-                             datetime
-                         ]) -> None:
+                         last_arrival_timestamp: Optional[datetime]) -> None:
         for func in reversed(self.__after_consume_func):
             func(
                 data,
                 shard_id,
                 last_sequence_number,
-                last_approximate_arrival_timestamp
+                last_arrival_timestamp
             )
 
     @typechecked

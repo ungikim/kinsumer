@@ -30,7 +30,7 @@ def _should_log(consumer: 'Consumer', mode: str):
     return False
 
 
-def create_logger(consumer: 'Consumer') -> _Logger:
+def create_logger(consumer: 'Consumer') -> _Logger:  # noqa: C901
     class DebugLogger(_Logger):
         def getEffectiveLevel(self):
             if self.level == 0 and consumer.debug:

@@ -11,6 +11,7 @@ from botocore.exceptions import ClientError
 from gevent import Greenlet
 from typeguard import typechecked
 
+from .bucket import InMemoryBucket
 from .ctx import ShardContext
 from .helpers import locked_cached_property, reraise
 
@@ -51,23 +52,26 @@ class KinesisShard(Greenlet):
                  raw_response: dict) -> None:
         super().__init__()
         self.consumer = consumer
-        self.bucket = consumer.bucket_class(
+        self.bucket = InMemoryBucket(
             self.consumer.config['BUCKET_SIZE_LIMIT'],
             self.consumer.config['BUCKET_COUNT_LIMIT']
         )
-        self.stream_name = self.consumer.config['KINESIS_STREAM_NAME']
+        self.stream_name: str = self.consumer.config['KINESIS_STREAM_NAME']
         self.id = raw_response['ShardId']
         self.iterator_type: str = self.consumer.config['SHARD_ITERATOR_TYPE']
-        self.iterator_interval: datetime = self.consumer.shard_iterator_interval
+        self.iterator_interval: datetime = \
+            self.consumer.shard_iterator_interval
         self.read_limit: int = self.consumer.config['SHARD_READ_LIMIT']
-        self.sequence_number = self.consumer.checkpointer.get_checkpoint(
+        self.sequence_number: str = self.consumer.checkpointer.get_checkpoint(
             self.id
         )
         if self.sequence_number is not None:
             self.consumer.logger.warn('Sequence number exist! (%s) '
                                       'iterator type ignored.',
                                       self.sequence_number)
-        self.iterator = self._get_iterator(sequence_number=self.sequence_number)
+        self.iterator = self.__get_iterator(
+            sequence_number=self.sequence_number
+        )
         self.__closed = False
 
     def get_context(self) -> ShardContext:
@@ -79,8 +83,8 @@ class KinesisShard(Greenlet):
             records = None
             try:
                 records, next_iterator = self._get_records()
-            except self.consumer.kinesis_client.exceptions.ExpiredIteratorException \
-                    as e:
+            except self.consumer.kinesis_client.exceptions. \
+                    ExpiredIteratorException as e:
                 raise e
             except self.consumer.kinesis_client.exceptions \
                     .ProvisionedThroughputExceededException as e:
@@ -89,42 +93,44 @@ class KinesisShard(Greenlet):
                 continue
             except ClientError as e:
                 self.consumer.handle_shard_exception(e)
-            last_approximate_arrival_timestamp = None
+            last_arrival_timestamp = None
             if len(records) > 0:
                 try:
                     for record in records:
                         self.bucket.add(record)
                 except Exception as e:
                     self.consumer.handle_shard_exception(e)
-                last_approximate_arrival_timestamp = records[-1]. \
+                last_arrival_timestamp = records[-1]. \
                     approximate_arrival_timestamp
             if next_iterator:
-                self.iterator = self._get_iterator(
+                self.iterator = self.__get_iterator(
                     iterator=next_iterator,
-                    last_approximate_arrival_timestamp=last_approximate_arrival_timestamp
+                    last_arrival_timestamp=last_arrival_timestamp
                 )
             else:
                 self.__closed = True
             del records, next_iterator
             if self.__closed:
-                data, last_sequence_number, last_approximate_arrival_timestamp \
-                    = self.bucket.get(True)
+                (data,
+                 last_sequence_number,
+                 last_arrival_timestamp) = self.bucket.get(True)
             else:
-                data, last_sequence_number, last_approximate_arrival_timestamp \
-                    = self.bucket.get(False)
+                (data,
+                 last_sequence_number,
+                 last_arrival_timestamp) = self.bucket.get(False)
             if data is not None:
                 try:
                     data = self.consumer.do_transform(
                         data=data,
                         shard_id=self.id,
                         last_sequence_number=last_sequence_number,
-                        last_approximate_arrival_timestamp=last_approximate_arrival_timestamp
+                        last_arrival_timestamp=last_arrival_timestamp
                     )
                     self.consumer.do_after_consume(
                         data=data,
                         shard_id=self.id,
                         last_sequence_number=last_sequence_number,
-                        last_approximate_arrival_timestamp=last_approximate_arrival_timestamp
+                        last_arrival_timestamp=last_arrival_timestamp
                     )
                 except Exception as e:
                     self.consumer.handle_shard_exception(e)
@@ -135,22 +141,20 @@ class KinesisShard(Greenlet):
                         raise e
                 finally:
                     self.bucket.flush()
-                    self.consumer.checkpointer.checkpoint(
-                        self.id,
-                        last_sequence_number
-                    )
-            del data, last_sequence_number, last_approximate_arrival_timestamp
+                    self.consumer.checkpointer.checkpoint(self.id,
+                                                          last_sequence_number)
+            del data, last_sequence_number, last_arrival_timestamp
             gevent.sleep(seconds=self.iterator_interval.seconds)
         self.consumer.close_shard(self)
 
     @typechecked
-    def _get_iterator(self,
-                      iterator: str = None,
-                      sequence_number: str = None,
-                      last_approximate_arrival_timestamp: datetime = None) -> str:
+    def __get_iterator(self,
+                       iterator: str = None,
+                       sequence_number: str = None,
+                       last_arrival_timestamp: datetime = None) -> str:
         if self.consumer.config['PROTRACTOR_ENABLE']:
-            if last_approximate_arrival_timestamp is not None \
-                    and self._overhang(last_approximate_arrival_timestamp):
+            if last_arrival_timestamp is not None \
+                    and self.__overhang(last_arrival_timestamp):
                 self.consumer.logger.warn('Shard %s Overhang sequence! move '
                                           'to LATEST', self.id)
                 return self.consumer.kinesis_client.get_shard_iterator(
@@ -175,7 +179,7 @@ class KinesisShard(Greenlet):
             )['ShardIterator']
 
     @typechecked
-    def _overhang(self, last_approximate_arrival_timestamp: datetime) -> bool:
+    def __overhang(self, last_approximate_arrival_timestamp: datetime) -> bool:
         overhang_interval = self.consumer.protractor_overhang_interval
         now = datetime.now(tz=timezone.utc)
         if now - last_approximate_arrival_timestamp > overhang_interval:
