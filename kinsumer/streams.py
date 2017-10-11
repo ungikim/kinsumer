@@ -179,10 +179,10 @@ class KinesisShard(Greenlet):
             )['ShardIterator']
 
     @typechecked
-    def __overhang(self, last_approximate_arrival_timestamp: datetime) -> bool:
+    def __overhang(self, last_arrival_timestamp: datetime) -> bool:
         overhang_interval = self.consumer.protractor_overhang_interval
         now = datetime.now(tz=timezone.utc)
-        if now - last_approximate_arrival_timestamp > overhang_interval:
+        if now - last_arrival_timestamp > overhang_interval:
             return True
         return False
 
