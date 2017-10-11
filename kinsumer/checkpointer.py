@@ -47,8 +47,8 @@ class InMemoryCheckpointer(Checkpointer):
 class FileCheckpointer(InMemoryCheckpointer):
     def __init__(self, file: str) -> None:
         super().__init__()
-        self.file = file
-        if os.path.exists(file):
+        self.file = os.path.expanduser(file)
+        if os.path.exists(self.file):
             with open(self.file, 'rb') as f:
                 self._checkpoints = json.load(f)
 

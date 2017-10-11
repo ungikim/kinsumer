@@ -56,7 +56,7 @@ class KinesisShard(Greenlet):
             self.consumer.config['BUCKET_SIZE_LIMIT'],
             self.consumer.config['BUCKET_COUNT_LIMIT']
         )
-        self.stream_name: str = self.consumer.config['KINESIS_STREAM_NAME']
+        self.stream_name: str = self.consumer.config['STREAM_NAME']
         self.id = raw_response['ShardId']
         self.iterator_type: str = self.consumer.config['SHARD_ITERATOR_TYPE']
         self.iterator_interval: datetime = \
@@ -69,6 +69,18 @@ class KinesisShard(Greenlet):
             sequence_number=self.sequence_number
         )
         self.__closed = False
+
+    def __repr__(self) -> str:
+        return '<{0!s} {1!s}>'.format(
+            self.__class__.__name__,
+            self.id,
+        )
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __eq__(self, o: object) -> bool:
+        return self.id == o.id
 
     def get_context(self) -> ShardContext:
         return ShardContext(self)
@@ -224,12 +236,5 @@ class KinesisStream(object):
     def get_shards(self, consumer: 'Consumer') -> List[KinesisShard]:
         return [
             KinesisShard(consumer, shard) for shard in
-            self.__raw_response.get('StreamDescription', {}).get('Shards', [])
-        ]
-
-    @locked_cached_property
-    def shard_ids(self):
-        return [
-            shard['ShardId'] for shard in
             self.__raw_response.get('StreamDescription', {}).get('Shards', [])
         ]

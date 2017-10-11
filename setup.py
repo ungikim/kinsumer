@@ -60,4 +60,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
+    entry_points="""
+        [console_scripts]
+        kinsumer=kinsumer.cli:main
+    """
 )

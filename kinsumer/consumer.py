@@ -246,7 +246,7 @@ class Consumer(object):
 
     def get_stream(self) -> KinesisStream:
         return KinesisStream(self.kinesis_client.describe_stream(
-            StreamName=self.config['KINESIS_STREAM_NAME']
+            StreamName=self.config['STREAM_NAME']
         ))
 
     def dispatch(self) -> None:
@@ -263,7 +263,7 @@ class Consumer(object):
 
     def spawn_shard(self, shard: KinesisShard) -> None:
         self.__threads.start(shard)
-        self.shards.add(shard.id)
+        self.shards.add(shard)
 
     def close_shard(self, shard: KinesisShard) -> None:
         self.logger.warn('Stream \'{0}\' Shard \'{1}\' closed'.format(
@@ -306,7 +306,7 @@ class ShardMonitor(Greenlet):
         while self.running:
             stream = self.consumer.get_stream()
             shards = set(
-                {shard_id for shard_id in stream.shard_ids}
+                {shard for shard in stream.get_shards(self.consumer)}
             )
             self.consumer.logger.warn(
                 'Monitoring shards:  Consumer({0}), AWS({1})'.format(
