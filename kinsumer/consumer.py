@@ -306,7 +306,7 @@ class ShardMonitor(Greenlet):
         while self.running:
             stream = self.consumer.get_stream()
             shards = set(
-                {shard.id for shard in stream.get_shards(self.consumer)}
+                {shard_id for shard_id in stream.shard_ids}
             )
             self.consumer.logger.warn(
                 'Monitoring shards:  Consumer({0}), AWS({1})'.format(

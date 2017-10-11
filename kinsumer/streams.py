@@ -65,10 +65,6 @@ class KinesisShard(Greenlet):
         self.sequence_number: str = self.consumer.checkpointer.get_checkpoint(
             self.id
         )
-        if self.sequence_number is not None:
-            self.consumer.logger.warn('Sequence number exist! (%s) '
-                                      'iterator type ignored.',
-                                      self.sequence_number)
         self.iterator = self.__get_iterator(
             sequence_number=self.sequence_number
         )
@@ -228,5 +224,12 @@ class KinesisStream(object):
     def get_shards(self, consumer: 'Consumer') -> List[KinesisShard]:
         return [
             KinesisShard(consumer, shard) for shard in
+            self.__raw_response.get('StreamDescription', {}).get('Shards', [])
+        ]
+
+    @locked_cached_property
+    def shard_ids(self):
+        return [
+            shard['ShardId'] for shard in
             self.__raw_response.get('StreamDescription', {}).get('Shards', [])
         ]
