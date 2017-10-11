@@ -4,9 +4,12 @@
 """
 import abc
 from datetime import datetime
-from typing import List, Optional, Tuple, Any
+from typing import List, Optional, Tuple, Any, TYPE_CHECKING
 
 from typeguard import typechecked
+
+if TYPE_CHECKING:
+    from .streams import KinesisRecord
 
 
 class Bucket(abc.ABC, object):
@@ -25,13 +28,13 @@ class Bucket(abc.ABC, object):
         """Get a list whose records if available"""
 
     @abc.abstractmethod
-    def add(self, record: Any) -> None:
+    def add(self, record: 'KinesisRecord') -> None:
         """Temporary save a given record"""
 
 
 class InMemoryBucket(Bucket):
     def __init__(self, size_limit: int, count_limit: int) -> None:
-        self.__data: List[Any] = []
+        self.__data: List['KinesisRecord'] = []
         self.__count = 0
         self.__size_limit = size_limit
         self.__count_limit = count_limit
@@ -54,7 +57,7 @@ class InMemoryBucket(Bucket):
                     return self.__get()
             return None, None, None
 
-    def add(self, record: Any) -> None:
+    def add(self, record: 'KinesisRecord') -> None:
         self.__data.append(record)
 
     def __get(self):
