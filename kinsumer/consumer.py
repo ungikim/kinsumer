@@ -116,6 +116,8 @@ class Consumer(object):
     def __init__(self,
                  import_name: str,
                  root_path: str = None,
+                 stream_region: str = None,
+                 stream_name: str = None,
                  log_folder: str = 'log',
                  checkpointer: Checkpointer = None) -> None:
         self.import_name = import_name
@@ -126,6 +128,10 @@ class Consumer(object):
 
         #: The configuration directory as :class:`Config`.
         self.config = Config(self.root_path, self.__default_config)
+        if stream_region is not None:
+            self.config['STREAM_REGION'] = stream_region
+        if stream_name is not None:
+            self.config['STREAM_NAME'] = stream_name
 
         #:
         self.checkpointer = checkpointer
