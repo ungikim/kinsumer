@@ -4,7 +4,7 @@
 """
 from gevent import monkey
 
-monkey.patch_all()
+monkey.patch_all()  # noqa: E402
 
 import os.path
 import sys
