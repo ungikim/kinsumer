@@ -90,7 +90,7 @@ class KinesisShard(Greenlet):
             self.consumer.logger.info('Processing Shard %s', self.id)
             records = None
             try:
-                records, next_iterator = self._get_records()
+                records, next_iterator = self.__get_records()
             except self.consumer.kinesis_client.exceptions. \
                     ExpiredIteratorException as e:
                 raise e
@@ -194,8 +194,8 @@ class KinesisShard(Greenlet):
             return True
         return False
 
-    def _get_records(self, limit=None) -> Tuple[Optional[List[KinesisRecord]],
-                                                Optional[str]]:
+    def __get_records(self, limit=None) -> Tuple[Optional[List[KinesisRecord]],
+                                                 Optional[str]]:
         if limit is not None:
             limit = int(limit)
         else:
