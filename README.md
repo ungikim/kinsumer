@@ -11,16 +11,6 @@ Some features
 * Provided Checkpointer implementation for memory, and file
 * Memory bucket for temporary saving records
 
-Missing features
-----------------
-
-* Redis Checkpointer
-
-Installation
-------------
-
-Install the latest stable version from Pypi with `pip install kinsumer`
-
 Usage
 -----
 
@@ -44,3 +34,19 @@ def after(data, shard_id, last_sequence_number, last_arrival_timestamp):
 if __name__ == '__main__':
     consumer.process()
 ```
+
+Author and license
+------------------
+
+kinsumer is written by [Ungi Kim](https://ungimim.me/), maintained by [Balance Hero](http://truebalance.io/), and licensing rules not yet set.  You can find the source code from [Github](https://github.com/balancehero/kinsumer):
+
+```
+$ git clone git@github.com:balancehero/kinsumer.git
+```
+
+Missing features
+----------------
+
+* Redis Checkpointer
+
+(Contributions would be appreciated!)
