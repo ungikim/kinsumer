@@ -55,7 +55,7 @@ class InMemoryBucket(Bucket):
             if size >= self.__size_limit or self.__count >= self.__count_limit:
                 if size > 0:
                     return self.__get()
-            return None, None, None
+            return [], None, None
 
     def add(self, record: 'KinesisRecord') -> None:
         self.__data.append(record)
