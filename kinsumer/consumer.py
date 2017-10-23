@@ -169,10 +169,10 @@ class Consumer(object):
                             region_name=self.config['STREAM_REGION'])
 
     @typechecked
-    def transform(self, func: Callable[[Optional[List[Any]],
+    def transform(self, func: Callable[[List[Any],
                                         str,
-                                        Optional[str],
-                                        Optional[datetime]],
+                                        str,
+                                        datetime],
                                        List[Any]]) -> Callable:
         self.__transform_funcs.append(func)
         return func
@@ -193,10 +193,10 @@ class Consumer(object):
 
     @typechecked
     def do_transform(self,
-                     data: Optional[List[Any]],
+                     data: List[Any],
                      shard_id: str,
-                     last_sequence_number: Optional[str],
-                     last_arrival_timestamp: Optional[datetime]) -> List[Any]:
+                     last_sequence_number: str,
+                     last_arrival_timestamp: datetime) -> List[Any]:
         for func in reversed(self.__transform_funcs):
             data = func(
                 data,
