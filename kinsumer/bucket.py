@@ -4,9 +4,8 @@
 """
 import abc
 from datetime import datetime
-from typing import List, Optional, Tuple, Any, TYPE_CHECKING
-
 from typeguard import typechecked
+from typing import List, Optional, Tuple, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .streams import KinesisRecord
@@ -44,7 +43,7 @@ class InMemoryBucket(Bucket):
         self.__count = 0
 
     @typechecked
-    def get(self, force: bool = False) -> Tuple[Optional[List[Any]],
+    def get(self, force: bool = False) -> Tuple[List[Any],
                                                 Optional[str],
                                                 Optional[datetime]]:
         if force:

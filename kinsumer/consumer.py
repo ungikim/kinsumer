@@ -169,10 +169,10 @@ class Consumer(object):
                             region_name=self.config['STREAM_REGION'])
 
     @typechecked
-    def transform(self, func: Callable[[List[Any],
+    def transform(self, func: Callable[[Optional[List[Any]],
                                         str,
-                                        str,
-                                        datetime],
+                                        Optional[str],
+                                        Optional[datetime]],
                                        List[Any]]) -> Callable:
         self.__transform_funcs.append(func)
         return func
@@ -193,10 +193,10 @@ class Consumer(object):
 
     @typechecked
     def do_transform(self,
-                     data: List[Any],
+                     data: Optional[List[Any]],
                      shard_id: str,
-                     last_sequence_number: str,
-                     last_arrival_timestamp: datetime) -> List[Any]:
+                     last_sequence_number: Optional[str],
+                     last_arrival_timestamp: Optional[datetime]) -> List[Any]:
         for func in reversed(self.__transform_funcs):
             data = func(
                 data,
@@ -275,7 +275,7 @@ class Consumer(object):
         self.logger.warn('Stream \'{0}\' Shard \'{1}\' closed'.format(
             self.config['STREAM_NAME'], shard.id
         ))
-        self.shards.remove(shard.id)
+        self.shards.remove(shard)
 
     def process(self, debug=None) -> None:
         if debug is not None:
