@@ -38,7 +38,7 @@ if __name__ == '__main__':
 Author and license
 ------------------
 
-kinsumer is written by [Ungi Kim](https://ungikim.me/), maintained by [Balance Hero](http://truebalance.io/), and licensing rules not yet set.  You can find the source code from [Github](https://github.com/balancehero/kinsumer):
+kinsumer is written by [Ungi Kim](https://ungikim.me/), maintained by [Balance Hero](http://truebalance.io/), and licensed under the MIT license.  You can find the source code from [Github](https://github.com/balancehero/kinsumer):
 
 ```
 $ git clone git@github.com:balancehero/kinsumer.git
