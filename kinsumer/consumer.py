@@ -275,7 +275,7 @@ class Consumer(object):
         self.logger.warn('Stream \'{0}\' Shard \'{1}\' closed'.format(
             self.config['STREAM_NAME'], shard.id
         ))
-        self.shards.remove(shard.id)
+        self.shards.remove(shard)
 
     def process(self, debug=None) -> None:
         if debug is not None:

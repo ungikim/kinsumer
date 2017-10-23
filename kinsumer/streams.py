@@ -3,13 +3,13 @@
 
 """
 import sys
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Tuple, List, Optional
 
 import gevent
 from botocore.exceptions import ClientError
+from datetime import datetime, timezone
 from gevent import Greenlet
 from typeguard import typechecked
+from typing import TYPE_CHECKING, Tuple, List, Optional
 
 from .bucket import InMemoryBucket
 from .ctx import ShardContext
@@ -126,7 +126,7 @@ class KinesisShard(Greenlet):
                 (data,
                  last_sequence_number,
                  last_arrival_timestamp) = self.bucket.get(False)
-            if data is not None:
+            if len(data) > 0:
                 try:
                     data = self.consumer.do_transform(
                         data=data,
