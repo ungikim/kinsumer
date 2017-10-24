@@ -2,7 +2,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-VERSION_INFO = (0, 5, 0)
+VERSION_INFO = (0, 5, 1)
 VERSION = '{}.{}.{}'.format(*VERSION_INFO)
 
 if __name__ == '__main__':
