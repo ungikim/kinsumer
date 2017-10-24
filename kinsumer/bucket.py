@@ -21,7 +21,7 @@ class Bucket(abc.ABC, object):
         """Clear the temporary storage"""
 
     @abc.abstractmethod
-    def get(self, force: bool = False) -> Tuple[Optional[List[Any]],
+    def get(self, force: bool = False) -> Tuple[List[Any],
                                                 Optional[str],
                                                 Optional[datetime]]:
         """Get a list whose records if available"""
