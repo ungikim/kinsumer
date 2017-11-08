@@ -48,5 +48,6 @@ Missing features
 ----------------
 
 * Redis Checkpointer
+* Consumer Heartbeat
 
 (Contributions would be appreciated!)
