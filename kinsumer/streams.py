@@ -5,6 +5,7 @@
 import sys
 
 import gevent
+import json
 from botocore.exceptions import ClientError
 from datetime import datetime, timezone
 from gevent import Greenlet
@@ -28,9 +29,16 @@ class KinesisRecord(object):
         )
         self.data: bytes = raw_record.get('Data')
         self.partition_key: str = raw_record.get('PartitionKey')
+        self.raw_record_str: str = json.dumps({
+            'SequenceNumber': self.sequence_number,
+            'ApproximateArrivalTimestamp':
+                self.approximate_arrival_timestamp.isoformat(sep=' '),
+            'Data': self.data.decode(),
+            'PartitionKey': self.partition_key
+        })
 
     def __repr__(self):
-        return str(self.data)
+        return str(self.raw_record_str)
 
     @staticmethod
     def build(shard_id: str,
