@@ -2,15 +2,15 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-import sys
+import json
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Tuple, List, Optional
 
 import gevent
-import json
+import sys
 from botocore.exceptions import ClientError
-from datetime import datetime, timezone
 from gevent import Greenlet
 from typeguard import typechecked
-from typing import TYPE_CHECKING, Tuple, List, Optional
 
 from .bucket import InMemoryBucket
 from .ctx import ShardContext
@@ -29,11 +29,15 @@ class KinesisRecord(object):
         )
         self.data: bytes = raw_record.get('Data')
         self.partition_key: str = raw_record.get('PartitionKey')
+        try:
+            data = self.data.decode()
+        except UnicodeDecodeError:
+            data = ''
         self.raw_record_str: str = json.dumps({
             'SequenceNumber': self.sequence_number,
             'ApproximateArrivalTimestamp':
                 self.approximate_arrival_timestamp.isoformat(sep=' '),
-            'Data': self.data.decode(),
+            'Data': data,
             'PartitionKey': self.partition_key
         })
 
